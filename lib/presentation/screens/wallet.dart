@@ -39,190 +39,182 @@ class _WalletState extends State<Wallet> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: wallet == null
-          ? CircularProgressIndicator()
-          : Container(
-              margin: EdgeInsets.only(top: 50),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: Container(
+        margin: EdgeInsets.only(top: 50),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Material(
+              elevation: 3,
+              child: Container(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: const Center(
+                  child: Text(
+                    "Wallet",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade200,
+              ),
+              child: Row(
                 children: [
-                  Material(
-                    elevation: 3,
-                    child: Container(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: const Center(
-                        child: Text(
-                          "Wallet",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20),
-                        ),
-                      ),
-                    ),
+                  Image.asset(
+                    "assets/images/Wallet_App.png",
+                    height: 60,
+                    width: 60,
+                    fit: BoxFit.cover,
                   ),
                   const SizedBox(
-                    height: 50,
+                    width: 30,
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 17, vertical: 15),
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                    ),
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          "assets/images/Wallet_App.png",
-                          height: 60,
-                          width: 60,
-                          fit: BoxFit.cover,
-                        ),
-                        const SizedBox(
-                          width: 30,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Your Wallet",
-                              style: TextStyle(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13),
-                            ),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Text(
-                              "\$23",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(left: 20),
-                    child: Text(
-                      "Add money",
-                      style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          makePayment("100");
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: const Color(0xFFE9E2E2)),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: const Text(
-                            "\$ 100",
-                            style: TextStyle(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
+                      Text(
+                        "Your Wallet",
+                        style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          makePayment("500");
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: const Color(0xFFE9E2E2)),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: const Text(
-                            "\$ 500",
-                            style: TextStyle(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
+                      SizedBox(
+                        height: 15,
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          makePayment("1000");
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: const Color(0xFFE9E2E2)),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: const Text(
-                            "\$ 1000",
-                            style: TextStyle(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          makePayment("200");
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: const Color(0xFFE9E2E2)),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: const Text(
-                            "\$ 2000",
-                            style: TextStyle(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
+                      Text(
+                        "\$23",
+                        style: TextStyle(
+                            color: Colors.black, fontWeight: FontWeight.bold),
+                      )
                     ],
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      showDialogAmount();
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 20),
-                      padding: const EdgeInsets.symmetric(vertical: 13),
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(
-                          color: const Color(0XFF008080),
-                          borderRadius: BorderRadius.circular(10)),
-                      child: const Center(
-                        child: Text(
-                          "Add Monye",
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
                   )
                 ],
               ),
             ),
+            const SizedBox(
+              height: 20,
+            ),
+            const Padding(
+              padding: EdgeInsets.only(left: 20),
+              child: Text(
+                "Add money",
+                style:
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    makePayment("100");
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE9E2E2)),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: const Text(
+                      "\$ 100",
+                      style: TextStyle(
+                          color: Colors.grey, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    makePayment("500");
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE9E2E2)),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: const Text(
+                      "\$ 500",
+                      style: TextStyle(
+                          color: Colors.grey, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    makePayment("1000");
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE9E2E2)),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: const Text(
+                      "\$ 1000",
+                      style: TextStyle(
+                          color: Colors.grey, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    makePayment("200");
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: const Color(0xFFE9E2E2)),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: const Text(
+                      "\$ 2000",
+                      style: TextStyle(
+                          color: Colors.grey, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            GestureDetector(
+              onTap: () {
+                showDialogAmount();
+              },
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 13),
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    color: const Color(0XFF008080),
+                    borderRadius: BorderRadius.circular(10)),
+                child: const Center(
+                  child: Text(
+                    "Add Monye",
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 

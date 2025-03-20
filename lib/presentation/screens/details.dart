@@ -1,6 +1,7 @@
 import 'package:ecommerce/bissness_logic/firebase/cubit/firebase_cubit.dart';
 import 'package:ecommerce/data/model/add_to_cart.dart';
 import 'package:ecommerce/data/model/shared_prefrence.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:random_string/random_string.dart';
@@ -24,9 +25,10 @@ class Details extends StatefulWidget {
 class _DetailsState extends State<Details> {
   late FirebaseCubit firebaseCubit;
   SharedPrefrenceHelper sharedprefCubit = SharedPrefrenceHelper();
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   String? userId;
   Future<void> getthesharedref() async {
-    userId = await sharedprefCubit.getUserId();
+    userId = firebaseAuth.currentUser!.uid;
   }
 
   int quantity = 1, total = 0;

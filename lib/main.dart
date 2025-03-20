@@ -3,6 +3,7 @@ import 'package:ecommerce/bissness_logic/firebase/cubit/firebase_cubit.dart';
 import 'package:ecommerce/data/model/shared_prefrence.dart';
 import 'package:ecommerce/presentation/screens/login_screen.dart';
 import 'package:ecommerce/presentation/screens/onboard_screen.dart';
+import 'package:ecommerce/presentation/screens/success.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

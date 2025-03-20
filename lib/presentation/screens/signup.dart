@@ -30,45 +30,67 @@ class _SignupState extends State<Signup> {
   final TextEditingController _passwordController = TextEditingController();
   final NotificationsHelper notificationsHelper = NotificationsHelper();
   final _formkey = GlobalKey<FormState>();
+  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   bool isLoading = false;
-
   void registration() async {
     setState(() {
       isLoading = true;
     });
+
     try {
-      auth.signup(_emailController.text, _passwordController.text, context);
+      await auth.signup(
+          _emailController.text, _passwordController.text, context);
+
+      User? user = await firebaseAuth.authStateChanges().first;
+      if (user == null) {
+        throw FirebaseAuthException(code: "user-not-found");
+      }
+
+      // تهيئة الإشعارات
       await notificationsHelper.initNotifications();
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.orange,
-          content: Text("Registerd Succesfull, ")));
-      String Id = randomAlphaNumeric(10);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        backgroundColor: Colors.orange,
+        content: Text("Registered Successfully"),
+      ));
+
+      // إضافة بيانات المستخدم إلى قاعدة البيانات
       firebaseCubit.addUserData(
-          UserModel(
-              email: _emailController.text,
-              id: Id,
-              name: _nameController.text,
-              deviceToken: notificationsHelper.deviceToken!,
-              wallet: '0'),
-          Id);
-      await SharedPrefrenceHelper().saveUserId(Id);
+        UserModel(
+          email: _emailController.text,
+          id: user.uid,
+          name: _nameController.text,
+          deviceToken: notificationsHelper.deviceToken ?? "",
+          wallet: '0',
+        ),
+        user.uid,
+      );
+
+      // حفظ بيانات المستخدم في SharedPreferences
+      await SharedPrefrenceHelper().saveUserId(user.uid);
       await SharedPrefrenceHelper().saveUserEmail(_emailController.text);
       await SharedPrefrenceHelper().saveUserName(_nameController.text);
       await SharedPrefrenceHelper().saveUserWallet('0');
 
+      // الانتقال إلى الشاشة الرئيسية
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => Bottomnav()));
+        context,
+        MaterialPageRoute(builder: (context) => Bottomnav()),
+      );
     } on FirebaseAuthException catch (e) {
+      String errorMessage;
       if (e.code == "weak-password") {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.orange,
-            content: Text("Password Provided is to weak")));
+        errorMessage = "كلمة المرور ضعيفة جدًا";
       } else if (e.code == "email-already-in-use") {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.orange,
-            content: Text("Account already exists")));
+        errorMessage = "الحساب موجود بالفعل";
+      } else {
+        errorMessage = "حدث خطأ أثناء التسجيل";
       }
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.orange,
+        content: Text(errorMessage),
+      ));
     } finally {
       setState(() {
         isLoading = false;

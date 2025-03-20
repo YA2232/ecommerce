@@ -54,6 +54,7 @@ dependencies:
   googleapis: ^13.2.0
   flutter_localization: ^0.3.0
   flutter_dotenv: ^5.2.1
+  flutter_svg: ^2.0.17
 
 dev_dependencies:
   flutter_test:

@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerce/admin/home_screeen_admin.dart';
 import 'package:ecommerce/data/model/add_food_item.dart';
 import 'package:ecommerce/data/model/add_to_cart.dart';
+import 'package:ecommerce/data/model/order_model.dart';
 import 'package:ecommerce/data/model/shared_prefrence.dart';
 import 'package:ecommerce/data/model/user_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -37,6 +38,18 @@ class FirebaseCubit extends Cubit<FirebaseState> {
     await firestore.collection('user').doc(userId).set(userData.toJson());
   }
 
+  Future<void> getUserData(String userId) async {
+    emit(UserDataLoading());
+    try {
+      await firestore.collection('user').doc(userId).get().then(((snapshot) {
+        UserModel userModel = UserModel.fromJson(snapshot.data()!);
+        emit(UserDataLoaded(userModel: userModel));
+      }));
+    } catch (e) {
+      emit(UserDataError());
+    }
+  }
+
   Future<void> updateDeviceToken(String deviceToken, String userId) async {
     await firestore
         .collection('user')
@@ -47,6 +60,54 @@ class FirebaseCubit extends Cubit<FirebaseState> {
   Future<void> updateUserWallet(String amount, String UserId) async {
     await firestore.collection("user").doc(UserId).update({'wallet': amount});
     emit(SuccessedFirebase());
+  }
+
+  Future<void> addOrder(OrderModel orderModel) async {
+    await firestore
+        .collection("order")
+        .doc(orderModel.orderId)
+        .set(orderModel.toJson());
+  }
+
+  Future<void> updateOrderStatus(String orderId, String newStatus) async {
+    await firestore
+        .collection("orders")
+        .doc(orderId)
+        .update({"status": newStatus});
+  }
+
+  void getOrderUser(String userId) {
+    emit(OrderLoading());
+    try {
+      firestore
+          .collection("order")
+          .where("userId", isEqualTo: userId)
+          .snapshots()
+          .listen((snapshot) {
+        List<OrderModel> list = snapshot.docs
+            .map((order) => OrderModel.fromJson(order.data()))
+            .toList();
+
+        emit(OrdersUserLoaded(list: list));
+      });
+    } catch (e) {
+      emit(OrderError());
+    }
+  }
+
+  void getAllOrders() {
+    emit(OrderLoading());
+    try {
+      firestore.collection("order").snapshots().listen((snapshot) {
+        List<OrderModel> list = snapshot.docs
+            .map((order) => OrderModel.fromJson(order.data()))
+            .toList();
+
+        emit(AllOrdersLoaded(list: list));
+      });
+    } catch (e) {
+      emit(OrderError());
+    }
   }
 
   Future<void> addFoodItem(
@@ -136,6 +197,20 @@ class FirebaseCubit extends Cubit<FirebaseState> {
         .collection("cart")
         .doc(productId)
         .delete();
+    emit(SuccessedFirebase());
+  }
+
+  void clearCart(String userId) {
+    firestore
+        .collection("user")
+        .doc(userId)
+        .collection("cart")
+        .get()
+        .then((querySnapshot) {
+      for (var doc in querySnapshot.docs) {
+        doc.reference.delete();
+      }
+    });
     emit(SuccessedFirebase());
   }
 

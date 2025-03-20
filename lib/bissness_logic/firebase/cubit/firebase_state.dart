@@ -39,6 +39,29 @@ final class SuccessedProfileImage extends FirebaseState {
   SuccessedProfileImage({required this.selectedImage});
 }
 
+final class UserDataLoaded extends FirebaseState {
+  UserModel userModel;
+  UserDataLoaded({required this.userModel});
+}
+
+final class UserDataLoading extends FirebaseState {}
+
+final class UserDataError extends FirebaseState {}
+
+final class OrderLoading extends FirebaseState {}
+
+final class OrdersUserLoaded extends FirebaseState {
+  List<OrderModel> list;
+  OrdersUserLoaded({required this.list});
+}
+
+final class AllOrdersLoaded extends FirebaseState {
+  List<OrderModel> list;
+  AllOrdersLoaded({required this.list});
+}
+
+final class OrderError extends FirebaseState {}
+
 final class ErorrFirebase extends FirebaseState {
   String e;
   ErorrFirebase({required this.e});

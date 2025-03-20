@@ -4,6 +4,7 @@ import 'package:ecommerce/bissness_logic/firebase/cubit/firebase_cubit.dart';
 import 'package:ecommerce/data/model/shared_prefrence.dart';
 import 'package:ecommerce/presentation/screens/login_screen.dart';
 import 'package:ecommerce/presentation/screens/signup.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -22,6 +23,7 @@ class _ProfileState extends State<Profile> {
   final ImagePicker _picker = ImagePicker();
   File? selectedImage;
   AuthCubit authCubit = AuthCubit();
+  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   Future getImage() async {
     var image = await _picker.pickImage(source: ImageSource.gallery);
@@ -48,15 +50,17 @@ class _ProfileState extends State<Profile> {
     }
   }
 
-  getthesharedpref() async {
-    profile = await SharedPrefrenceHelper().getUserProfile();
-    name = await SharedPrefrenceHelper().getUserName();
-    email = await SharedPrefrenceHelper().getUserEmail();
+  getUserData() async {
+    // profile = await SharedPrefrenceHelper().getUserProfile();
+    // name = await SharedPrefrenceHelper().getUserName();
+    // email = await SharedPrefrenceHelper().getUserEmail();
+    BlocProvider.of<FirebaseCubit>(context)
+        .getUserData(firebaseAuth.currentUser!.uid);
     setState(() {});
   }
 
   onthisload() async {
-    await getthesharedpref();
+    await getUserData();
     setState(() {});
   }
 
@@ -69,9 +73,16 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: name == null
-          ? CircularProgressIndicator()
-          : Container(
+      body: BlocBuilder<FirebaseCubit, FirebaseState>(
+        builder: (context, state) {
+          if (state is UserDataLoading) {
+            return Container(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          } else if (state is UserDataLoaded) {
+            return Container(
               child: Column(
                 children: [
                   Stack(
@@ -129,7 +140,7 @@ class _ProfileState extends State<Profile> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              name!,
+                              state.userModel.name,
                               style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 23.0,
@@ -177,7 +188,7 @@ class _ProfileState extends State<Profile> {
                                       fontWeight: FontWeight.w600),
                                 ),
                                 Text(
-                                  name!,
+                                  state.userModel.name,
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 16.0,
@@ -226,7 +237,7 @@ class _ProfileState extends State<Profile> {
                                       fontWeight: FontWeight.w600),
                                 ),
                                 Text(
-                                  email!,
+                                  state.userModel.email,
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 16.0,
@@ -383,7 +394,11 @@ class _ProfileState extends State<Profile> {
                   )
                 ],
               ),
-            ),
+            );
+          }
+          return Container();
+        },
+      ),
     );
   }
 }
