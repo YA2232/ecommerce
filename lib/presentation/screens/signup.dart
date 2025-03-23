@@ -9,6 +9,7 @@ import 'package:ecommerce/presentation/screens/bottomnav.dart';
 import 'package:ecommerce/presentation/screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:random_string/random_string.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,6 +33,7 @@ class _SignupState extends State<Signup> {
   final _formkey = GlobalKey<FormState>();
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
   bool isLoading = false;
+
   void registration() async {
     setState(() {
       isLoading = true;
@@ -66,13 +68,6 @@ class _SignupState extends State<Signup> {
         user.uid,
       );
 
-      // حفظ بيانات المستخدم في SharedPreferences
-      await SharedPrefrenceHelper().saveUserId(user.uid);
-      await SharedPrefrenceHelper().saveUserEmail(_emailController.text);
-      await SharedPrefrenceHelper().saveUserName(_nameController.text);
-      await SharedPrefrenceHelper().saveUserWallet('0');
-
-      // الانتقال إلى الشاشة الرئيسية
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => Bottomnav()),

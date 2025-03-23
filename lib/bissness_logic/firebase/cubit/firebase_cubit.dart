@@ -71,7 +71,7 @@ class FirebaseCubit extends Cubit<FirebaseState> {
 
   Future<void> updateOrderStatus(String orderId, String newStatus) async {
     await firestore
-        .collection("orders")
+        .collection("order")
         .doc(orderId)
         .update({"status": newStatus});
   }
@@ -200,8 +200,8 @@ class FirebaseCubit extends Cubit<FirebaseState> {
     emit(SuccessedFirebase());
   }
 
-  void clearCart(String userId) {
-    firestore
+  Future<void> clearCart(String userId) async {
+    await firestore
         .collection("user")
         .doc(userId)
         .collection("cart")

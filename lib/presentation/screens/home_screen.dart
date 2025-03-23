@@ -1,6 +1,7 @@
 import 'package:ecommerce/bissness_logic/firebase/cubit/firebase_cubit.dart';
 import 'package:ecommerce/data/model/add_food_item.dart';
 import 'package:ecommerce/presentation/screens/details.dart';
+import 'package:ecommerce/presentation/screens/my_order_tracking.dart';
 import 'package:ecommerce/presentation/widgets/category_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -278,9 +279,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: BoxDecoration(
                         color: Colors.orange,
                         borderRadius: BorderRadius.circular(8)),
-                    child: const Icon(
-                      Icons.shopping_cart_outlined,
-                      color: Colors.white,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MyOrderTracking()));
+                      },
+                      child: const Icon(
+                        Icons.shopping_cart_outlined,
+                        color: Colors.white,
+                      ),
                     ),
                   )
                 ],

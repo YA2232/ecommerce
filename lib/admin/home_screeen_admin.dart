@@ -1,5 +1,6 @@
 import 'package:ecommerce/admin/add_food.dart';
 import 'package:ecommerce/admin/admin_products.dart';
+import 'package:ecommerce/admin/order_tracking.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreeenAdmin extends StatefulWidget {
@@ -38,7 +39,7 @@ class _HomeScreeenAdminState extends State<HomeScreeenAdmin> {
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(vertical: 15),
                     decoration: BoxDecoration(
-                        color: Colors.black,
+                        color: Colors.orange,
                         borderRadius: BorderRadius.circular(10)),
                     child: Center(
                       child: Text(
@@ -64,11 +65,37 @@ class _HomeScreeenAdminState extends State<HomeScreeenAdmin> {
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(vertical: 15),
                     decoration: BoxDecoration(
-                        color: Colors.black,
+                        color: Colors.orange,
                         borderRadius: BorderRadius.circular(10)),
                     child: Center(
                       child: Text(
                         "Products",
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
+                    )),
+              ),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => OrderTracking()));
+              },
+              child: Material(
+                elevation: 10,
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 15),
+                    decoration: BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Center(
+                      child: Text(
+                        "Orders",
                         style: TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),

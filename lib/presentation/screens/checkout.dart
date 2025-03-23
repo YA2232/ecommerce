@@ -209,28 +209,30 @@ class _CheckoutState extends State<Checkout> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: GestureDetector(
                 onTap: () async {
-                  final String orderId = randomAlphaNumeric(10);
                   if (formKey.currentState!.validate()) {
+                    final String orderId = randomAlphaNumeric(10);
                     // paymentService.makePayment(context,
                     //     (widget.totalPrice + priceOfDelivery).toString());
-                    firebaseCubit
-                        .addOrder(OrderModel(
-                            orderId: orderId,
-                            userId: firebaseAuth.currentUser!.uid,
-                            name: name.text,
-                            address: address.text,
-                            phone: phone.text,
-                            totalPrice: (widget.totalPrice + priceOfDelivery)
-                                .toDouble(),
-                            list: widget.list.map((e) => e.toJson()),
-                            status: "قيد المراجعه",
-                            createdAt: DateTime.now()))
-                        .then((_) {
-                      firebaseCubit.clearCart(firebaseAuth.currentUser!.uid);
-                    });
+
+                    await firebaseCubit.addOrder(OrderModel(
+                      orderId: orderId,
+                      userId: firebaseAuth.currentUser!.uid,
+                      name: name.text,
+                      address: address.text,
+                      phone: phone.text,
+                      totalPrice:
+                          (widget.totalPrice + priceOfDelivery).toDouble(),
+                      list: widget.list.map((e) => e.toJson()).toList(),
+                      status: "new order",
+                      createdAt: DateTime.now(),
+                    ));
+
+                    await firebaseCubit
+                        .clearCart(firebaseAuth.currentUser!.uid);
+
+                    Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => Success()));
                   }
-                  Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => Success()));
                 },
                 child: Container(
                   padding: const EdgeInsets.all(10),
