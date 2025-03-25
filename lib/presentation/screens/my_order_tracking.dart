@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 
 class MyOrderTracking extends StatelessWidget {
   MyOrderTracking({super.key});
-  FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -23,45 +23,244 @@ class MyOrderTracking extends StatelessWidget {
             title: const Text(
               'My Orders',
               style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold),
+                fontSize: 20,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             centerTitle: true,
             backgroundColor: Colors.orange,
-          ),
-          body: Column(
-            children: <Widget>[
-              ButtonsTabBar(
-                contentPadding: EdgeInsets.all(10),
-                radius: 5,
-                backgroundColor: Colors.red,
-                borderWidth: 1.5,
-                unselectedBorderColor: Colors.transparent,
-                elevation: 5,
-                buttonMargin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-                borderColor: Colors.transparent,
-                labelStyle: const TextStyle(
+            elevation: 0,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(50),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
                   color: Colors.white,
-                  fontWeight: FontWeight.bold,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5))
+                  ],
                 ),
-                unselectedLabelStyle: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
+                child: ButtonsTabBar(
+                  radius: 30,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                  backgroundColor: Colors.orange,
+                  unselectedBackgroundColor: Colors.white,
+                  borderWidth: 0,
+                  unselectedBorderColor: Colors.transparent,
+                  labelStyle: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                  tabs: const [
+                    Tab(text: "New Order"),
+                    Tab(text: "Shipped"),
+                    Tab(text: "Delivered"),
+                  ],
                 ),
-                tabs: const [
-                  Tab(text: "New Order"),
-                  Tab(text: "Transported"),
-                  Tab(text: "Delivered"),
+              ),
+            ),
+          ),
+          body: Container(
+            color: Colors.grey[100],
+            child: const TabBarView(
+              children: [
+                _OrderTab(status: "new order"),
+                _OrderTab(status: "transported"),
+                _OrderTab(status: "delivered"),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OrderTab extends StatelessWidget {
+  final String status;
+  const _OrderTab({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<FirebaseCubit, FirebaseState>(
+      builder: (context, state) {
+        if (state is OrderLoading) {
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+            ),
+          );
+        } else if (state is OrdersUserLoaded) {
+          List<OrderModel> orders =
+              state.list.where((order) => order.status == status).toList();
+
+          if (orders.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.shopping_bag_outlined,
+                    size: 60,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "No $status orders",
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "You don't have any $status orders yet",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[500],
+                    ),
+                  ),
                 ],
               ),
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    _buildOrderTab("new order"),
-                    _buildOrderTab("transported"),
-                    _buildOrderTab("delivered"),
-                  ],
+            );
+          }
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: orders.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
+            itemBuilder: (context, index) {
+              final order = orders[index];
+              return _OrderCard(order: order);
+            },
+          );
+        }
+        return Center(
+          child: Text(
+            "No available data",
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 16,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _OrderCard extends StatelessWidget {
+  final OrderModel order;
+  const _OrderCard({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    String formattedDate =
+        DateFormat('MMM dd, yyyy - hh:mm a').format(order.createdAt);
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetailsOrder(orderModel: order),
+            ),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Order #${order.orderId.substring(0, 8)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(order.status).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      order.status.toUpperCase(),
+                      style: TextStyle(
+                        color: _getStatusColor(order.status),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                formattedDate,
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Divider(height: 1),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Total Amount',
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontSize: 14,
+                    ),
+                  ),
+                  Text(
+                    '\$${order.totalPrice.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'View Details',
+                  style: TextStyle(
+                    color: Colors.orange[700],
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ],
@@ -70,159 +269,17 @@ class MyOrderTracking extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildOrderTab(String status) {
-    return BlocBuilder<FirebaseCubit, FirebaseState>(
-      builder: (context, state) {
-        if (state is OrderLoading) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (state is OrdersUserLoaded) {
-          List<OrderModel> orders =
-              state.list.where((order) => order.status == status).toList();
-
-          return _buildOrderList(orders);
-        }
-        return const Center(child: Text("No available data"));
-      },
-    );
-  }
-
-  Widget _buildOrderList(List<OrderModel> orders) {
-    if (orders.isEmpty) {
-      return const Center(child: Text("No Orders found"));
-    }
-
-    return ListView.builder(
-      itemCount: orders.length,
-      itemBuilder: (context, index) {
-        final order = orders[index];
-        String formattedDate = DateFormat('yyyy-MM-dd').format(order.createdAt);
-        return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'OrderId: ${order.orderId}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        order.status,
-                        style: TextStyle(
-                            color: _getStatusColor(order.status),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text.rich(TextSpan(children: [
-                        TextSpan(
-                          text: 'Quantity: ',
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                        TextSpan(
-                          text: '${formattedDate}',
-                          style: const TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold),
-                        )
-                      ])),
-                      Text.rich(TextSpan(children: [
-                        TextSpan(
-                          text: 'Total Amount: ',
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                        TextSpan(
-                          text: '${order.totalPrice} \$',
-                          style: const TextStyle(
-                              color: Colors.black, fontWeight: FontWeight.bold),
-                        )
-                      ])),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => DetailsOrder(
-                                        orderModel: order,
-                                      )));
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(width: 1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            "Details",
-                            style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ));
-      },
-    );
-  }
-
-  Widget _buildButtonStatus(
-      String text, BuildContext context, String orderId, String newStatus) {
-    return GestureDetector(
-      onTap: () {
-        context.read<FirebaseCubit>().updateOrderStatus(orderId, newStatus);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(width: 1),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          text,
-          style:
-              const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-      ),
-    );
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case "new order":
-        return Colors.orange;
-      case "transported":
-        return Colors.blue;
-      case "delivered":
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
+Color _getStatusColor(String status) {
+  switch (status) {
+    case "new order":
+      return Colors.orange;
+    case "transported":
+      return Colors.blue;
+    case "delivered":
+      return Colors.green;
+    default:
+      return Colors.grey;
   }
 }

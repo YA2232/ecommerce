@@ -1,4 +1,5 @@
 import 'package:ecommerce/admin/add_food.dart';
+import 'package:ecommerce/admin/admin_login.dart';
 import 'package:ecommerce/admin/admin_products.dart';
 import 'package:ecommerce/admin/order_tracking.dart';
 import 'package:flutter/material.dart';
@@ -16,93 +17,141 @@ class _HomeScreeenAdminState extends State<HomeScreeenAdmin> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text(
-          "Home Admin",
+        title: const Text(
+          "Admin Dashboard",
           style: TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 17),
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
+            ),
+          ),
+        ),
+        elevation: 0,
+        automaticallyImplyLeading: false,
       ),
       body: Container(
-        margin: EdgeInsets.only(top: 50, right: 20, left: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFF5F7FA), Color(0xFFE4E7EB)],
+          ),
+        ),
+        child: GridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
+          shrinkWrap: true,
           children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AddFood()));
-              },
-              child: Material(
-                elevation: 10,
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Center(
-                      child: Text(
-                        "Add Food Items",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    )),
+            _buildFeatureCard(
+              icon: Icons.add_circle_outline,
+              title: "Add Food",
+              color: const Color(0xFF6A11CB),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddFood()),
               ),
             ),
-            SizedBox(
-              height: 15,
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AdminProducts()));
-              },
-              child: Material(
-                elevation: 10,
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Center(
-                      child: Text(
-                        "Products",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    )),
+            _buildFeatureCard(
+              icon: Icons.fastfood,
+              title: "Products",
+              color: const Color(0xFF2575FC),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AdminProducts()),
               ),
             ),
-            SizedBox(
-              height: 15,
-            ),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => OrderTracking()));
-              },
-              child: Material(
-                elevation: 10,
-                borderRadius: BorderRadius.circular(10),
-                child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Center(
-                      child: Text(
-                        "Orders",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    )),
+            _buildFeatureCard(
+              icon: Icons.shopping_bag,
+              title: "Orders",
+              color: const Color(0xFF4CAF50),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const OrderTracking()),
               ),
-            )
+            ),
+            _buildFeatureCard(
+              icon: Icons.analytics,
+              title: "Analytics",
+              color: const Color(0xFFFF9800),
+              onTap: () {
+                // Add analytics screen navigation
+              },
+            ),
+            _buildFeatureCard(
+              icon: Icons.admin_panel_settings_outlined,
+              title: "Log Out",
+              color: const Color(0xFF9C27B0),
+              onTap: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => AdminLogin()));
+              },
+            ),
+            _buildFeatureCard(
+              icon: Icons.settings,
+              title: "Settings",
+              color: const Color(0xFF607D8B),
+              onTap: () {
+                // Add settings screen navigation
+              },
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureCard({
+    required IconData icon,
+    required String title,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(15),
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [color.withOpacity(0.8), color],
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 40,
+                color: Colors.white,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

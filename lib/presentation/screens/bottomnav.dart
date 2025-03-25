@@ -2,7 +2,6 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:ecommerce/presentation/screens/home_screen.dart';
 import 'package:ecommerce/presentation/screens/order.dart';
 import 'package:ecommerce/presentation/screens/profile.dart';
-import 'package:ecommerce/presentation/screens/wallet.dart';
 import 'package:flutter/material.dart';
 
 class Bottomnav extends StatefulWidget {
@@ -19,7 +18,6 @@ class _BottomnavState extends State<Bottomnav> {
   late List<Widget> pages;
   late Profile profile;
   late Order order;
-  late Wallet wallet;
 
   @override
   void initState() {
@@ -28,8 +26,7 @@ class _BottomnavState extends State<Bottomnav> {
     homeScreen = const HomeScreen();
     profile = Profile();
     order = Order();
-    wallet = const Wallet();
-    pages = [homeScreen, order, wallet, profile];
+    pages = [homeScreen, order, profile];
   }
 
   @override
@@ -38,7 +35,7 @@ class _BottomnavState extends State<Bottomnav> {
       bottomNavigationBar: CurvedNavigationBar(
           height: 60,
           backgroundColor: Colors.white,
-          color: Colors.orange,
+          color: Colors.blue,
           animationDuration: const Duration(milliseconds: 500),
           onTap: (int index) {
             setState(() {
@@ -52,10 +49,6 @@ class _BottomnavState extends State<Bottomnav> {
             ),
             Icon(
               Icons.shopping_bag_outlined,
-              color: Colors.white,
-            ),
-            Icon(
-              Icons.wallet_outlined,
               color: Colors.white,
             ),
             Icon(

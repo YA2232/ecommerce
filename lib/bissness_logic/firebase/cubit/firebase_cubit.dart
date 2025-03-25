@@ -157,13 +157,13 @@ class FirebaseCubit extends Cubit<FirebaseState> {
         List<AddFoodItem> listFoodItem = snapshot.docs
             .map((doc) => AddFoodItem.fromJson(doc.data()))
             .toList();
-        if (collection == 'icecream') {
+        if (collection == 'children') {
           emit(Icecream(icecreamList: listFoodItem));
-        } else if (collection == 'salad') {
+        } else if (collection == 'unisex') {
           emit(Salad(saladList: listFoodItem));
-        } else if (collection == 'burger') {
+        } else if (collection == 'women') {
           emit(Burger(burgerList: listFoodItem));
-        } else if (collection == 'pizza') {
+        } else if (collection == 'men') {
           emit(Pizza(pizzaList: listFoodItem));
         }
       });

@@ -24,115 +24,172 @@ class _OrderState extends State<Order> {
     firebaseCubit.getFoodCart(firebaseAuth.currentUser!.uid);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Order'),
-        centerTitle: true,
-        backgroundColor: Colors.teal,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Products',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  Widget _buildEmptyCart() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.shopping_cart_outlined,
+              size: 80, color: Colors.grey.shade300),
+          const SizedBox(height: 20),
+          Text(
+            'Your cart is empty',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.grey.shade600,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: BlocBuilder<FirebaseCubit, FirebaseState>(
-                builder: (context, state) {
-                  if (state is LoadingFirebase) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state is SuccessedFoodCart) {
-                    final listFoodCart = state.listFoodCart;
-                    total = listFoodCart.fold(
-                      0,
-                      (sum, item) => sum + int.parse(item.price),
-                    );
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Add some items to get started',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey.shade500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-                    if (listFoodCart.isEmpty) {
-                      return const Center(child: Text('No items in the cart'));
-                    }
-
-                    return ListView.separated(
-                      itemCount: listFoodCart.length,
-                      separatorBuilder: (_, __) => const Divider(),
-                      itemBuilder: (context, i) {
-                        final foodCart = listFoodCart[i];
-
-                        return ListTile(
-                          leading: Container(
-                            height: 50,
-                            width: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              image: DecorationImage(
-                                image: NetworkImage(
-                                  foodCart.image ??
-                                      'https://via.placeholder.com/150',
-                                ),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          title: Text(foodCart.name ?? 'Not found'),
-                          subtitle: Text('Quantity: ${foodCart.quantity ?? 0}'),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('${foodCart.price ?? 0} \$'),
-                              const SizedBox(width: 20),
-                              GestureDetector(
-                                onTap: () {
-                                  firebaseCubit.removeFromCart(
-                                    firebaseAuth.currentUser!.uid,
-                                    foodCart.id,
-                                  );
-                                },
-                                child: const Icon(Icons.remove_circle_outline),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  }
-                  return const Center(child: Text('Failed to load cart'));
-                },
+  Widget _buildCartItem(AddToCart foodCart) {
+    return Card(
+      elevation: 1,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                foodCart.image ?? 'https://via.placeholder.com/150',
+                width: 70,
+                height: 70,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  width: 70,
+                  height: 70,
+                  color: Colors.grey.shade200,
+                  child: const Icon(Icons.image_not_supported),
+                ),
               ),
             ),
-            const Divider(),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    foodCart.name ?? 'Not found',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Qty: ${foodCart.quantity ?? 0}',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const Text(
-                  'Total price:',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Text(
+                  '\$${foodCart.price ?? 0}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.teal,
+                  ),
                 ),
-                BlocBuilder<FirebaseCubit, FirebaseState>(
-                  builder: (context, state) {
-                    if (state is SuccessedFoodCart) {
-                      return Text(
-                        '\$${total.toString()}',
-                        style:
-                            const TextStyle(fontSize: 16, color: Colors.teal),
-                      );
-                    }
-                    return const Text(
-                      '\$0',
-                      style: TextStyle(fontSize: 16, color: Colors.teal),
+                const SizedBox(height: 8),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  onPressed: () {
+                    firebaseCubit.removeFromCart(
+                      firebaseAuth.currentUser!.uid,
+                      foodCart.id,
                     );
                   },
                 ),
               ],
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCartList(List<AddToCart> listFoodCart) {
+    return ListView.separated(
+      itemCount: listFoodCart.length,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, i) => _buildCartItem(listFoodCart[i]),
+    );
+  }
+
+  Widget _buildBottomPanel(int total) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 10,
+            offset: const Offset(0, -3),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total:',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                '\$$total',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
               onPressed: () {
                 if (total > 0) {
                   Navigator.push(
@@ -148,22 +205,57 @@ class _OrderState extends State<Order> {
                   );
                 }
               },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Center(
-                child: Text(
-                  'Checkout',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+              child: const Text(
+                'Proceed to Checkout',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Cart'),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+      ),
+      body: BlocBuilder<FirebaseCubit, FirebaseState>(
+        builder: (context, state) {
+          if (state is LoadingFirebase) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is SuccessedFoodCart) {
+            final listFoodCart = state.listFoodCart;
+            total = listFoodCart.fold(
+              0,
+              (sum, item) => sum + int.parse(item.price),
+            );
+
+            return Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: listFoodCart.isEmpty
+                        ? _buildEmptyCart()
+                        : _buildCartList(listFoodCart),
+                  ),
+                ),
+                if (listFoodCart.isNotEmpty) _buildBottomPanel(total),
+              ],
+            );
+          }
+          return _buildEmptyCart();
+        },
       ),
     );
   }

@@ -2,7 +2,6 @@ import 'package:ecommerce/bissness_logic/firebase/cubit/firebase_cubit.dart';
 import 'package:ecommerce/data/model/add_food_item.dart';
 import 'package:ecommerce/presentation/screens/details.dart';
 import 'package:ecommerce/presentation/screens/my_order_tracking.dart';
-import 'package:ecommerce/presentation/widgets/category_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,336 +14,295 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int selectedIndex = 0;
-  bool iceCream = false;
-  bool pizza = false;
-  bool salad = false;
-  bool burger = false;
   late FirebaseCubit firebaseCubit;
 
   final List categories = [
-    {"name": "pizza", "path": "assets/images/pizza.jpeg"},
-    {"name": "burger", "path": "assets/images/burger.jpeg"},
-    {"name": "salad", "path": "assets/images/salad.jpeg"},
-    {"name": "icecream", "path": "assets/images/icecream.jpeg"},
+    {"name": "men", "path": "assets/images/men.webp", "color": Colors.blue},
+    {"name": "women", "path": "assets/images/women.webp", "color": Colors.pink},
+    {
+      "name": "unisex",
+      "path": "assets/images/unisex.webp",
+      "color": Colors.purple
+    },
+    {
+      "name": "children",
+      "path": "assets/images/unisex.webp",
+      "color": Colors.orange
+    },
   ];
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    firebaseCubit.getFoodItem(categories[selectedIndex]['name']!);
-  }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     firebaseCubit = BlocProvider.of<FirebaseCubit>(context);
-    firebaseCubit.getFoodItem('pizza');
+    firebaseCubit.getFoodItem('men');
   }
 
-  Widget buildFoodItem(List list) {
-    return SizedBox(
-      height: 250,
-      child: ListView.builder(
-          itemCount: list.length,
-          scrollDirection: Axis.horizontal,
-          shrinkWrap: true,
-          itemBuilder: (context, i) {
-            AddFoodItem foodItem = list[i];
-            return GestureDetector(
-              onTap: () async {
-                await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Details(
-                              details: foodItem.details,
-                              name: foodItem.name,
-                              price: foodItem.price,
-                              image: foodItem.image!,
-                            )));
-                firebaseCubit.getFoodItem('pizza');
-              },
-              child: Container(
-                margin: const EdgeInsets.all(10),
-                child: Material(
-                  elevation: 3,
-                  borderRadius: BorderRadius.circular(10),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          (foodItem.image != null && foodItem.image!.isNotEmpty)
-                              ? Image.network(
-                                  foodItem.image!,
-                                  width: 200,
-                                  height: 150,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.asset(
-                                  "assets/images/welcome.jpg",
-                                  width: 200,
-                                  height: 150,
-                                  fit: BoxFit.cover,
-                                ),
-                          Text(
-                            foodItem.name,
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          const Text(
-                            "frech and healthy",
-                            style: TextStyle(color: Colors.grey, fontSize: 11),
-                          ),
-                          Text(
-                            "\$" + foodItem.price,
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+  Widget _buildAppBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Hello,",
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 16,
                 ),
               ),
-            );
-          }),
+              const Text(
+                "Find Your Perfume",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  spreadRadius: 2,
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.shopping_cart_outlined),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyOrderTracking()),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget foodItemVertically(List list) {
-    return ListView.builder(
-      itemCount: list.length,
-      scrollDirection: Axis.vertical,
-      physics: NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemBuilder: (context, i) {
-        AddFoodItem foodItem = list[i];
-        return GestureDetector(
-          onTap: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Details(
-                  details: foodItem.details,
-                  name: foodItem.name,
-                  price: foodItem.price,
-                  image: foodItem.image!,
+  Widget _buildCategoryChips() {
+    return SizedBox(
+      height: 60,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: categories.length,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: ChoiceChip(
+              label: Text(
+                categories[index]['name'],
+                style: TextStyle(
+                  color: selectedIndex == index ? Colors.white : Colors.black,
                 ),
               ),
-            );
-            firebaseCubit.getFoodItem('pizza');
-          },
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Container(
-              margin: const EdgeInsets.only(right: 10),
-              child: Material(
-                elevation: 5,
+              selected: selectedIndex == index,
+              selectedColor: categories[index]['color'],
+              backgroundColor: Colors.grey.shade200,
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.all(5),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          bottomLeft: Radius.circular(20),
-                        ),
-                        child: (foodItem.image != null &&
-                                foodItem.image!.isNotEmpty)
-                            ? Image.network(
-                                foodItem.image!,
-                                width: 200,
-                                height: 150,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.asset(
-                                "assets/images/welcome.jpg",
-                                width: 200,
-                                height: 150,
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              foodItem.name,
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 5),
-                            const Text(
-                              "Honey for eating",
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              "\$${foodItem.price}",
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              ),
+              onSelected: (selected) {
+                setState(() {
+                  selectedIndex = index;
+                  firebaseCubit.getFoodItem(categories[index]['name']);
+                });
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildFoodItemCard(AddFoodItem foodItem) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Details(
+                details: foodItem.details,
+                name: foodItem.name,
+                price: foodItem.price,
+                image: foodItem.image!,
               ),
             ),
-          ),
-        );
+          );
+          firebaseCubit.getFoodItem(categories[selectedIndex]['name']);
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
+              child: AspectRatio(
+                aspectRatio: 1.5,
+                child: foodItem.image != null && foodItem.image!.isNotEmpty
+                    ? Image.network(
+                        foodItem.image!,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.asset(
+                        "assets/images/welcome.jpg",
+                        fit: BoxFit.cover,
+                      ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    foodItem.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    foodItem.details,
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 12,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    "\$${foodItem.price}",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.teal,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHorizontalFoodList(List<AddFoodItem> items) {
+    return SizedBox(
+      height: 240,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: items.length,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemBuilder: (context, index) {
+          return SizedBox(
+            width: 180,
+            child: _buildFoodItemCard(items[index]),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildVerticalFoodList(List<AddFoodItem> items) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        return _buildFoodItemCard(items[index]);
       },
     );
   }
 
-  Widget buildAllItems() {
-    return BlocBuilder<FirebaseCubit, FirebaseState>(builder: (context, state) {
-      if (state is LoadingFirebase) {
-        return Container(child: Center(child: CircularProgressIndicator()));
-      } else if (state is ErorrFirebase) {
-        state.showErorr(context);
-      } else if (state is Pizza) {
-        return buildFoodItem(state.pizzaList);
-      } else if (state is Salad) {
-        return buildFoodItem(state.saladList);
-      } else if (state is Burger) {
-        return buildFoodItem(state.burgerList);
-      } else if (state is Icecream) {
-        return buildFoodItem(state.icecreamList);
-      }
-      return Container();
-    });
-  }
-
-  Widget buildAllItemsVertical() {
-    return BlocBuilder<FirebaseCubit, FirebaseState>(builder: (context, state) {
-      if (state is LoadingFirebase) {
-        return Container(child: Center(child: CircularProgressIndicator()));
-      } else if (state is ErorrFirebase) {
-        state.showErorr(context);
-      } else if (state is Pizza) {
-        return foodItemVertically(state.pizzaList);
-      } else if (state is Salad) {
-        return foodItemVertically(state.saladList);
-      } else if (state is Burger) {
-        return foodItemVertically(state.burgerList);
-      } else if (state is Icecream) {
-        return foodItemVertically(state.icecreamList);
-      }
-      return Container();
-    });
+  Widget _buildContent() {
+    return BlocBuilder<FirebaseCubit, FirebaseState>(
+      builder: (context, state) {
+        if (state is LoadingFirebase) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is ErorrFirebase) {
+          state.showErorr(context);
+          return Container();
+        } else if (state is Pizza) {
+          return Column(
+            children: [
+              _buildHorizontalFoodList(state.pizzaList),
+              _buildVerticalFoodList(state.pizzaList),
+            ],
+          );
+        } else if (state is Salad) {
+          return Column(
+            children: [
+              _buildHorizontalFoodList(state.saladList),
+              _buildVerticalFoodList(state.saladList),
+            ],
+          );
+        } else if (state is Burger) {
+          return Column(
+            children: [
+              _buildHorizontalFoodList(state.burgerList),
+              _buildVerticalFoodList(state.burgerList),
+            ],
+          );
+        } else if (state is Icecream) {
+          return Column(
+            children: [
+              _buildHorizontalFoodList(state.icecreamList),
+              _buildVerticalFoodList(state.icecreamList),
+            ],
+          );
+        }
+        return Container();
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.only(top: 50, left: 20, right: 20),
+      backgroundColor: Colors.grey.shade50,
+      body: SafeArea(
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Hi Ecommerce",
-                    style: TextStyle(
-                        color: Colors.black, fontWeight: FontWeight.bold),
-                  ),
-                  Container(
-                    width: 35,
-                    height: 35,
-                    decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(8)),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MyOrderTracking()));
-                      },
-                      child: const Icon(
-                        Icons.shopping_cart_outlined,
-                        color: Colors.white,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              const Text(
-                "Delicies Food",
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24),
-              ),
-              const Text(
-                "Discover and get ceat food",
-                style: TextStyle(
-                    color: Colors.black38,
-                    fontWeight: FontWeight.w500,
-                    fontSize: 18),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              SizedBox(
-                height: 100,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: CategoryItem(
-                        pathFoto: categories[index]['path']!,
-                        isSelected: selectedIndex == index,
-                        onTap: () {
-                          setState(() {
-                            firebaseCubit
-                                .getFoodItem(categories[index]['name']!);
-                            selectedIndex = index;
-                          });
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Container(height: 250, child: buildAllItems()),
-              const SizedBox(
-                height: 20,
-              ),
-              buildAllItemsVertical(),
+              _buildAppBar(),
+              _buildCategoryChips(),
+              const SizedBox(height: 16),
+              _buildContent(),
             ],
           ),
         ),

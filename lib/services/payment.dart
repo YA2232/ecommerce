@@ -1,12 +1,11 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class PaymentService {
-  Future<void> makePayment(BuildContext context, String amount) async {
+  Future<bool> makePayment(BuildContext context, String amount) async {
     try {
       final paymentIntent = await createPaymentIntent(amount, "usd");
       await Stripe.instance.initPaymentSheet(
@@ -15,15 +14,17 @@ class PaymentService {
           merchantDisplayName: "Your Merchant Name",
         ),
       );
-      displayPaymentSheet(context, amount);
+      return await displayPaymentSheet(context, amount);
     } catch (e) {
       print("Error in makePayment: $e");
+      return false;
     }
   }
 
-  void displayPaymentSheet(BuildContext context, String amount) async {
+  Future<bool> displayPaymentSheet(BuildContext context, String amount) async {
     try {
       await Stripe.instance.presentPaymentSheet();
+
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -37,8 +38,11 @@ class PaymentService {
           ],
         ),
       );
+
+      return true;
     } catch (e) {
       print("Error displaying payment sheet: $e");
+      return false;
     }
   }
 

@@ -1,22 +1,23 @@
 import 'package:ecommerce/bissness_logic/firebase/cubit/firebase_cubit.dart';
 import 'package:ecommerce/data/model/add_to_cart.dart';
-import 'package:ecommerce/data/model/shared_prefrence.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:random_string/random_string.dart';
 
 class Details extends StatefulWidget {
-  String name;
-  String price;
-  String details;
-  String image;
-  Details(
-      {required this.details,
-      required this.image,
-      required this.name,
-      required this.price,
-      super.key});
+  final String name;
+  final String price;
+  final String details;
+  final String image;
+
+  const Details({
+    required this.details,
+    required this.image,
+    required this.name,
+    required this.price,
+    super.key,
+  });
 
   @override
   State<Details> createState() => _DetailsState();
@@ -24,215 +25,219 @@ class Details extends StatefulWidget {
 
 class _DetailsState extends State<Details> {
   late FirebaseCubit firebaseCubit;
-  SharedPrefrenceHelper sharedprefCubit = SharedPrefrenceHelper();
-  final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-  String? userId;
-  Future<void> getthesharedref() async {
-    userId = firebaseAuth.currentUser!.uid;
-  }
+  int quantity = 1;
+  late int total;
 
-  int quantity = 1, total = 0;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     firebaseCubit = BlocProvider.of<FirebaseCubit>(context);
-    getthesharedref();
     total = int.parse(widget.price);
-    int totaPrice() {
-      return quantity * total;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        margin: const EdgeInsets.only(top: 50, left: 20, right: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: const Icon(Icons.arrow_back_ios_new),
-            ),
-            Image.network(
-              widget.image,
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height / 2.5,
-              fit: BoxFit.fill,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Row(
-              children: [
-                Column(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(30),
+                        bottomRight: Radius.circular(30),
+                      ),
+                      image: DecorationImage(
+                        image: NetworkImage(widget.image),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 20,
+                    left: 20,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.8),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            widget.name,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.teal.shade100,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.remove),
+                                onPressed: () {
+                                  if (quantity > 1) {
+                                    setState(() {
+                                      quantity--;
+                                      total -= int.parse(widget.price);
+                                    });
+                                  }
+                                },
+                              ),
+                              Text(
+                                quantity.toString(),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.add),
+                                onPressed: () {
+                                  setState(() {
+                                    quantity++;
+                                    total += int.parse(widget.price);
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
                     Text(
-                      widget.name,
+                      widget.details,
                       style: TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
+                        color: Colors.grey.shade600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        const Icon(Icons.timer, color: Colors.teal),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Delivery in 30 minutes",
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () {
-                    if (quantity > 1) {
-                      setState(() {
-                        quantity--;
-                        total -= int.parse(widget.price);
-                      });
-                    } else {
-                      return;
-                    }
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: const Color(0XFF008080),
-                        borderRadius: BorderRadius.circular(5)),
-                    child: const Icon(
-                      Icons.remove,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 20,
-                ),
-                Text(quantity.toString()),
-                const SizedBox(
-                  width: 20,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      quantity++;
-                      total += int.parse(widget.price);
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                        color: const Color(0XFF008080),
-                        borderRadius: BorderRadius.circular(5)),
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
+              ),
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 10,
+              offset: const Offset(0, -5),
             ),
-            const SizedBox(
-              height: 15,
-            ),
-            Text(
-              widget.details,
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            const Row(
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Delivery Time:",
+                  "Total Price",
                   style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-                Icon(
-                  Icons.alarm,
-                  size: 20,
-                  color: Colors.grey,
-                ),
-                SizedBox(
-                  width: 5,
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
                 ),
                 Text(
-                  "30 Minute",
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
+                  "\$$total",
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal,
+                  ),
                 ),
               ],
             ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    children: [
-                      Text(
-                        "Total Price",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        "\$" + total.toString(),
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20),
-                      ),
-                    ],
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              ),
+              onPressed: () async {
+                String productId = randomAlphaNumeric(10);
+                await firebaseCubit.addToCart(
+                  AddToCart(
+                    id: productId,
+                    name: widget.name,
+                    price: total.toString(),
+                    image: widget.image,
+                    details: widget.details,
+                    quantity: quantity.toString(),
                   ),
-                  GestureDetector(
-                    onTap: () async {
-                      String productId = randomAlphaNumeric(10);
-                      await firebaseCubit.addToCart(
-                          AddToCart(
-                              id: productId,
-                              name: widget.name,
-                              price: total.toString(),
-                              image: widget.image,
-                              details: widget.details,
-                              quantity: quantity.toString()),
-                          userId!,
-                          productId,
-                          context);
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          backgroundColor: Colors.orange,
-                          content: Text("Food Added To Cart")));
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          color: const Color(0XFF008080),
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Row(
-                        children: [
-                          const Text(
-                            "Add to cart",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                          Container(
-                            child: const Icon(
-                              Icons.shopping_cart_outlined,
-                              color: Colors.white,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  )
+                  FirebaseAuth.instance.currentUser!.uid,
+                  productId,
+                  context,
+                );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Item added to cart"),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              },
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Add to Cart",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.shopping_cart_outlined, size: 20),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
