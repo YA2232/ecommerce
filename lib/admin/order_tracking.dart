@@ -1,7 +1,7 @@
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:ecommerce/bissness_logic/firebase/cubit/firebase_cubit.dart';
 import 'package:ecommerce/data/model/order_model.dart';
-import 'package:ecommerce/presentation/screens/details_order.dart';
+import 'package:ecommerce/presentation/screens/order/details_order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';

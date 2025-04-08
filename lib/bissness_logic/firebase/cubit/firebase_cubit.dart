@@ -6,7 +6,7 @@ import 'package:ecommerce/admin/home_screeen_admin.dart';
 import 'package:ecommerce/data/model/add_food_item.dart';
 import 'package:ecommerce/data/model/add_to_cart.dart';
 import 'package:ecommerce/data/model/order_model.dart';
-import 'package:ecommerce/data/model/shared_prefrence.dart';
+import 'package:ecommerce/data/shared_pref/shared_prefrence.dart';
 import 'package:ecommerce/data/model/user_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';

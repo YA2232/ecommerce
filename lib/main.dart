@@ -1,9 +1,9 @@
 import 'package:ecommerce/bissness_logic/auth/cubit/auth_cubit.dart';
 import 'package:ecommerce/bissness_logic/firebase/cubit/firebase_cubit.dart';
-import 'package:ecommerce/data/model/shared_prefrence.dart';
-import 'package:ecommerce/presentation/screens/login_screen.dart';
-import 'package:ecommerce/presentation/screens/onboard_screen.dart';
-import 'package:ecommerce/presentation/screens/success.dart';
+import 'package:ecommerce/data/shared_pref/shared_prefrence.dart';
+import 'package:ecommerce/presentation/screens/auth/login_screen.dart';
+import 'package:ecommerce/presentation/screens/onboarding/onboard_screen.dart';
+import 'package:ecommerce/presentation/screens/checkout/success.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,7 +15,6 @@ void main() async {
   await Firebase.initializeApp();
   await dotenv.load(fileName: ".env");
 
-  // ✅ التحقق من مفتاح Stripe قبل تعيينه
   String? publishKey = dotenv.env["PUBLISH_KEY"];
   if (publishKey != null) {
     Stripe.publishableKey = publishKey;
@@ -23,7 +22,6 @@ void main() async {
     debugPrint("⚠️ تحذير: لم يتم العثور على مفتاح Stripe في .env");
   }
 
-  // ✅ تحميل بيانات SharedPreferences
   SharedPrefrenceHelper sharedPrefrenceHelper = SharedPrefrenceHelper();
   bool? seen = await sharedPrefrenceHelper.getOnboard();
   String? Id = await sharedPrefrenceHelper.getUserId();
